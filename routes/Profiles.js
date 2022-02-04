@@ -26,7 +26,7 @@ router.route('/').get((req, res) => {
       } else {
         res.json({
           "status": 200,
-          "data": row
+          "profiles": row
         })
       }
     }
@@ -55,13 +55,12 @@ router.route('/:profileId/get').get((req, res) => {
 })
 
 router.route('/create').post((req, res) => {
-  console.log(req.body);
   var query = `
-  INSERT INTO Profile (firstName, lastName, emergencyContact)
-  VALUES (?, ?, ?)
+  INSERT INTO Profile (firstName, lastName, emergencyContact, bloodPressure, carbonMonoxide, temperature, healthConditions)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
   `
   var stmt = db.prepare(query);
-  stmt.run(req.body.firstName, req.body.lastName, req.body.emergencyContact);
+  stmt.run(req.body.firstName, req.body.lastName, req.body.emergencyContact, 10, 5, 90, req.body.healthConditions);
   stmt.finalize();
 
   query = `
@@ -79,6 +78,21 @@ router.route('/create').post((req, res) => {
     }
   })
   stmt.finalize();
+
+});
+
+router.route('/createDummyProfiles').post((req, res) => {
+  for (let i = 0; i < 20; i++) {
+    var query = `
+    INSERT INTO Profile (firstName, lastName, emergencyContact, bloodPressure, carbonMonoxide, temperature)
+    VALUES (?, ?, ?, ?, ?, ?)
+    `
+    var stmt = db.prepare(query);
+    stmt.run(`f${i}`, `l${i}`, `ec${i}`, `bp${i}`, `cm${i}`, `t${i}`);
+    stmt.finalize();
+  }
+  console.log('hit');
+  res.status(200).send('successfully created dummy profiles');
 
 });
 

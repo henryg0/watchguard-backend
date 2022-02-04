@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 })
 
 // routes
-app.use('/Profiles', profileRouter);
+app.use('/profiles', profileRouter);
 
 app.listen(port, () => {
   console.log('listening on port ', port)
