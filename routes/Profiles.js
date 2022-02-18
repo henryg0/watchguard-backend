@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const db = require('../db');
+const RFModuleWrapper = require('../RFModuleWrapper');
 
 const sendJson = (res, err, data, msg) => {
   res.json({
@@ -96,4 +97,15 @@ router.route('/createDummyProfiles').post((req, res) => {
 
 });
 
+router.route('/readRFModule').get((req, res) => {
+  try {
+    const data = {
+      bloodPressureData: RFModuleWrapper.getBloodPressure() + 70,
+      temperatureData: RFModuleWrapper.getTemperature() + 65,
+      carbonMonoxideData: RFModuleWrapper.getCarbonMonoxide() - 5};
+    res.status(200).send({rfData: data})
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
 module.exports = router;

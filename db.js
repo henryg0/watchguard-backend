@@ -5,7 +5,6 @@ const DB_FILE_NAME = "watchguard.sqlite"
 
 var db = new sqlite3.Database(DB_FILE_NAME);
 // create tables
-db.run('DROP TABLE IF EXISTS Profile');
 db.run(`CREATE TABLE IF NOT EXISTS ${profileSchema}`);
-
+console.log('created table', profileSchema);
 module.exports = db;
