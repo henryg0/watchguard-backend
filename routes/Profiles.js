@@ -1,15 +1,9 @@
 const router = require('express').Router();
 const db = require('../db');
-const RFModuleWrapper = require('../RFModuleWrapper');
+const SerialPort = require('serialport').SerialPort;
+const portName = "COM6"
+var dataJSON = {};
 
-const sendJson = (res, err, data, msg) => {
-  res.json({
-    "status": !err ? 200 : 400,
-    "err": err,
-    "data": data ? data : "undefined",
-    "msg": msg
-  })
-};
 router.route('/').get((req, res) => {
   var query = `
   SELECT * from Profile
@@ -99,13 +93,31 @@ router.route('/createDummyProfiles').post((req, res) => {
 
 router.route('/readRFModule').get((req, res) => {
   try {
-    const data = {
-      bloodPressureData: RFModuleWrapper.getBloodPressure() + 70,
-      temperatureData: RFModuleWrapper.getTemperature() + 65,
-      carbonMonoxideData: RFModuleWrapper.getCarbonMonoxide() - 5};
-    res.status(200).send({rfData: data})
+    var dataString = '';
+    const port = new SerialPort({
+      path: portName,
+      baudRate: 9600,
+    });
+    const regex = '{(.*?)}'
+
+    port.on('data', (data) => {
+      dataString += data.toString();
+      if (dataString.endsWith('>')) {
+        const regexMatch = dataString.match(regex);
+        dataJSON = JSON.parse(regexMatch[0] || {});
+        port.close();
+        return;
+      }
+    })
+    port.on('error', (err) => {
+      return;
+    })
+    res.status(200).send(dataJSON);
+
   } catch (e) {
-    res.status(400).send(e);
+    console.log('here');
+    res.status(400).send('err:', e);
+    return;
   }
 });
 module.exports = router;
