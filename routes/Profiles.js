@@ -41,9 +41,9 @@ router.route('/:profileId/get').get((req, res) => {
       res.send("err" + err);
     } else {
       if (!row) {
-        sendJson(res, err, row, "undefined", `error fetching profile w. profileId: ${req.params.profileId}`);
+        res.status(400).send(`error fetching profile w. profileId: ${req.params.profileId}`);
       } else {
-        sendJson(res, err, row, `fetched profile w. profileId: ${req.params.profileId}`);
+        res.status(200).send(`fetched profile w. profileId: ${req.params.profileId}`);
       }
     }
   })
@@ -67,9 +67,9 @@ router.route('/create').post((req, res) => {
   var params = [req.body.firstName, req.body.lastName];
   stmt.get(params, (err, row) => {
     if (err) {
-      sendJson(res, err, row, "error fetching data after insertion");
+      res.status(400).send("error fetching data after insertion");
     } else {
-      sendJson(res, err, row, `fetched profile w/ firstName: ${req.body.firstName}, lastName: ${req.body.lastName}`);
+      res.status(200).send(`fetched profile w/ firstName: ${req.body.firstName}, lastName: ${req.body.lastName}`);
     }
   })
   stmt.finalize();
