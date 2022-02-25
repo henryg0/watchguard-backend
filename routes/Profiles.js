@@ -102,12 +102,18 @@ router.route('/readRFModule').get((req, res) => {
 
     port.on('data', (data) => {
       dataString += data.toString();
-      if (dataString.endsWith('>')) {
-        const regexMatch = dataString.match(regex);
-        dataJSON = JSON.parse(regexMatch[0] || {});
-        port.close();
+      try {
+        if (dataString.endsWith('>')) {
+          const regexMatch = dataString.match(regex);
+          dataJSON = JSON.parse(regexMatch ? regexMatch[0] : {});
+          port.close();
+          return;
+        }
+      } catch (e) {
+        console.error(e);
         return;
       }
+
     })
     port.on('error', (err) => {
       return;
